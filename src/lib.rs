@@ -524,7 +524,7 @@ mod tests {
 
         invalid_turn(&mut cte, "0-0", GameError::KingCannotCastleSafetly);
 
-        // Let's finish up here by ending in stealmate
+        // Let's finish up here by ending in stalemate
         play(&mut cte, "Rdxh3 Ke7  0-0 Rg8  h6 Rg7  hxg7 Nh5  g8=Q g4");
         play(&mut cte, "Rxh5 Bb8  Qxb8 h6  Rxh6 Nb4  Nxg4 a5  Qxb4+ axb4");
         play(&mut cte, "Rff6 Kd7");
@@ -538,7 +538,7 @@ mod tests {
 
         let gs = cte.gamestate();
         invalid_turn(&mut cte, "d3", GameError::GameOver(gs));
-        assert_eq!(Gamestate::Stealmate, cte.gamestate());
+        assert_eq!(Gamestate::Stalemate, cte.gamestate());
 
         cte.display_on_screen(DisplayOption::BoardView(ViewMode::FancyTui));
     }

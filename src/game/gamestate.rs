@@ -8,7 +8,7 @@ pub enum Gamestate {
 
     /// Type of a draw where player is not in check, but has no legal turns to
     /// make
-    Stealmate,
+    Stalemate,
 
     /// No player can win the game
     DrawInsufficientMatingMaterial,
@@ -31,7 +31,7 @@ impl fmt::Display for Gamestate {
             match self {
                 Self::Victory(side) => format!("{} won", side),
                 Self::Ongoing => "Ongoing".to_owned(),
-                Self::Stealmate => "Stealmate".to_owned(),
+                Self::Stalemate => "Stalemate".to_owned(),
                 Self::DrawFiftyMoveRule => "Draw by fifty move rule".to_owned(),
                 Self::DrawThreeFoldRepetition =>
                     "Draw by three fold repetition rule".to_owned(),
@@ -49,7 +49,7 @@ mod tests {
     #[test]
     fn print() {
         assert_eq!(Gamestate::Ongoing.to_string().as_str(), "Ongoing");
-        assert_eq!(Gamestate::Stealmate.to_string().as_str(), "Stealmate");
+        assert_eq!(Gamestate::Stalemate.to_string().as_str(), "Stalemate");
         assert_eq!(
             Gamestate::DrawThreeFoldRepetition.to_string(),
             "Draw by three fold repetition rule"

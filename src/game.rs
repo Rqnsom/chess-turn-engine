@@ -108,7 +108,7 @@ impl Game {
     /// Update gamestate for the draw conditions
     fn check_few_draw_conditions(&mut self) {
         if self.available_turns.is_empty() {
-            self.board.gamestate = Gamestate::Stealmate;
+            self.board.gamestate = Gamestate::Stalemate;
             return;
         }
 
