@@ -408,11 +408,11 @@ mod tests {
     }
 
     #[test]
-    fn test_simulated_castlings() {
+    fn test_simulated_castlings1() {
         let mut cte = ChessTurnEngine::new(Setup::Normal).unwrap();
         cte.display_on_screen(DisplayOption::BoardView(ViewMode::FancyTui));
 
-        // Black turns are random, the white guy is doing the testing
+        // Black turns are mostly random, the white guy is doing the testing
         play(&mut cte, "f4 e5  fxe5 Qg5  e3 Qxg2  Ba6 b6  Nh3 Qb7");
         play(&mut cte, "e6 Ke7  exd7 Kf6  0-0+");
         undo_turns(&mut cte, 1);
@@ -428,6 +428,18 @@ mod tests {
         invalid_turn(&mut cte, "0-0-0", GameError::KingCannotCastleSafetly);
 
         play(&mut cte, "Qxf7 Bxa1");
+        // After capturing the rook, long castling is unavailable
+        invalid_turn(&mut cte, "0-0-0", GameError::CastlingUnavailable);
+    }
+
+    #[test]
+    fn test_simulated_castlings2() {
+        let mut cte = ChessTurnEngine::new(Setup::Normal).unwrap();
+        cte.display_on_screen(DisplayOption::BoardView(ViewMode::FancyTui));
+
+        play(&mut cte, "a4 d5  a5 Bh3  a6 Qd6  axb7 Na6  bxa8=N Qc6");
+        play(&mut cte, "Nb6 Qxb6  b3");
+
         // After capturing the rook, long castling is unavailable
         invalid_turn(&mut cte, "0-0-0", GameError::CastlingUnavailable);
     }

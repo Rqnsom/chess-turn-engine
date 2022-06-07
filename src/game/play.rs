@@ -183,6 +183,8 @@ fn play_pawn(board: &mut Board, turn: &mut Move) -> Result<State, GameError> {
         _ => Enpassant::try_from(src, turn.dst, board.active_player),
     };
 
+    handle_castling_status(board, src, &turn, &captured);
+
     if let Some(captured) = captured {
         state.captured = Some((
             match is_enpassant {
@@ -232,7 +234,6 @@ fn play_piece(board: &mut Board, turn: &mut Move) -> Result<State, GameError> {
     // Clear en-passant state for non-pawn turns
     board.enpassant = None;
 
-    // Track whether castling is still possible
     handle_castling_status(board, src, &turn, &captured);
 
     Ok(state)
@@ -342,7 +343,10 @@ fn verify_check_checkmate(
     }
 }
 
-/// Update castling rights based on king/rook movement
+/// Track whether castling is still possible
+/// Update castling rights based on
+///  - king/rook movement
+///  - captured rook
 pub fn handle_castling_status(
     board: &mut Board,
     src: Square,
@@ -355,7 +359,7 @@ pub fn handle_castling_status(
 
     let side = board.active_player;
     match turn.who {
-        // As soon as the king moves, castling option is gone
+        // As soon as the king moves, castling right is forever gone
         Piece::King => {
             board.castling_rights.remove(&(side, CastlingType::Short));
             board.castling_rights.remove(&(side, CastlingType::Long));

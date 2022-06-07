@@ -134,3 +134,9 @@ cte.display_on_screen(DisplayOption::BoardView(ViewMode::SimpleAscii));
 // 1 wR wN wB wQ wK wB wN wR
 //    a  b  c  d  e  f  g  h
 ```
+
+# About
+I don't really play chess that much, but I needed something to practice my Rust
+skills, so this was sort of a fun project.
+This particular crate was created for the purpose of [Pacifist chess
+simulation](https://github.com/Rqnsom/pacifist-chess-simulation).
