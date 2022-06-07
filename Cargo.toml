@@ -1,14 +1,14 @@
 [package]
 name = "chess-turn-engine"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 authors = ["Rqnsom"]
 repository = "https://github.com/Rqnsom/chess-turn-engine"
-description = "Chess engine library with all chess rules implemented. Can be used to implement a chess game."
+description = "Chess turn engine library with all chess rules implemented. Can be used to implement a chess game."
 documentation = "https://docs.rs/chess-turn-engine/"
 keywords = ["chess", "chess-turn-engine"]
 license = "MIT"
 readme = "README.md"
 
 [dependencies]
-chess-notation-parser = "0.2.0"
+chess-notation-parser = "0.2"
