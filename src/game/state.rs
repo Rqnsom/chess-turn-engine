@@ -54,7 +54,7 @@ impl State {
         Self {
             turn,
             moving_piece_src: None,
-            enpassant: board.enpassant.clone(),
+            enpassant: board.enpassant,
             fifty_move_rule: board.fifty_move_rule,
             castling_rights: board.castling_rights,
             captured: None,

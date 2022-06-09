@@ -8,9 +8,9 @@ use chess_notation_parser::{Piece, Square};
 pub fn display_game(game: &Game, opt: DisplayOption) -> String {
     match opt {
         DisplayOption::BoardView(ViewMode::FancyTui) => {
-            tui_fancy::display_board_fancy(&game)
+            tui_fancy::display_board_fancy(game)
         }
-        DisplayOption::BoardView(_) => tui_ascii::display_board_ascii(&game),
+        DisplayOption::BoardView(_) => tui_ascii::display_board_ascii(game),
         DisplayOption::TurnHistory => display_history(&game.history),
         DisplayOption::CaptureHistory => display_captured(&game.history),
     }
@@ -47,7 +47,7 @@ fn display_history(history: &Vec<State>) -> String {
     }
 
     let mut s = String::from('\n');
-    for (i, state) in history.into_iter().enumerate() {
+    for (i, state) in history.iter().enumerate() {
         s.push_str(
             match i % 2 == 0 {
                 true => format!("\t{:2}. {} ", (i / 2) + 1, state.get_turn()),
@@ -68,7 +68,7 @@ fn display_captured(history: &Vec<State>) -> String {
     }
 
     let mut s = String::from('\n');
-    for (i, state) in history.into_iter().enumerate() {
+    for (i, state) in history.iter().enumerate() {
         if let Some((_, captured)) = state.captured {
             s.push_str(
                 format!(
@@ -103,7 +103,7 @@ mod tui_fancy {
         const GRID_LEN: usize = 2 * GRID_UNIT_LEN + 8 * GRID_UNIT_LEN;
 
         // Refresh screen and reposition the cursor at the top left corner
-        s.push_str(&format!("\x1B[2J\x1B[1;1H"));
+        s.push_str("\x1B[2J\x1B[1;1H");
 
         // Top grid
         s.push_str(&format!("{}{}\n", C_GRID, " ".repeat(GRID_LEN)));
@@ -113,7 +113,7 @@ mod tui_fancy {
             s.push_str(&format!("{} {}{} ", C_GRID, C_FG_RED, rank));
 
             for file in 'a'..='h' {
-                s.push_str(&print_square(rank, file, &game));
+                s.push_str(&print_square(rank, file, game));
             }
             s.push_str(&format!("{}{}\n", C_GRID, " ".repeat(GRID_UNIT_LEN)));
         }
@@ -156,13 +156,13 @@ mod tui_ascii {
             s.push_str(&format!("{} ", rank));
 
             for file in 'a'..='h' {
-                s.push_str(&print_square(rank, file, &game));
+                s.push_str(&print_square(rank, file, game));
             }
             s.push('\n');
         }
 
         // Print 'file' letter at bottom of every file/column
-        s.push_str(&format!("  "));
+        s.push_str("  ");
         for file in 'a'..='h' {
             s.push_str(&format!(" {} ", file));
         }

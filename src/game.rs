@@ -25,7 +25,7 @@ use side::Side;
 use state::State;
 
 /// Default chessboard setup
-pub const NORMAL_SETUP: &'static str = "
+pub const NORMAL_SETUP: &str = "
     a1,w,R b1,w,N c1,w,B d1,w,Q e1,w,K f1,w,B g1,w,N h1,w,R \
     a2,w,P b2,w,P c2,w,P d2,w,P e2,w,P f2,w,P g2,w,P h2,w,P \
     a7,b,P b7,b,P c7,b,P d7,b,P e7,b,P f7,b,P g7,b,P h7,b,P \
@@ -49,12 +49,12 @@ pub struct Game {
 impl Game {
     /// Create `Game` instance
     pub fn new(setup: &'static str) -> Result<Game, &'static str> {
-        Ok(builder::create(setup)?)
+        builder::create(setup)
     }
 
     /// Prepare a string that displays the board
     pub fn display(&self, display_opt: DisplayOption) -> String {
-        display::display_game(&self, display_opt)
+        display::display_game(self, display_opt)
     }
 
     /// Get game status
@@ -118,14 +118,12 @@ impl Game {
         // -> K+N vs K
         if self.board.map.len() == 2
             || (self.board.map.len() == 3
-                && !self
+                && self
                     .board
                     .map
                     .into_iter()
                     .map(|(_, (p, _))| p)
-                    .filter(|p| *p == Piece::Knight || *p == Piece::Bishop)
-                    .collect::<Vec<Piece>>()
-                    .is_empty())
+                    .any(|p| p == Piece::Knight || p == Piece::Bishop))
         {
             self.board.gamestate = Gamestate::DrawInsufficientMatingMaterial;
         }

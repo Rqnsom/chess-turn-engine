@@ -55,11 +55,11 @@ struct TurnInfo {
 
 /// Get all possible turns for a given piece
 fn get_turns(sps: &Sps, board: &mut Board) -> Vec<AvailableTurn> {
-    let unchecked_turns = get_unchecked_turns(&sps, board);
-    let mut turns = get_check_checkmate_flags(unchecked_turns, &sps, board);
+    let unchecked_turns = get_unchecked_turns(sps, board);
+    let mut turns = get_check_checkmate_flags(unchecked_turns, sps, board);
 
-    set_correct_src(&mut turns, &board.map, &sps);
-    gen_available_turns(turns, &sps)
+    set_correct_src(&mut turns, &board.map, sps);
+    gen_available_turns(turns, sps)
 }
 
 /// Generate available turns.
@@ -75,16 +75,11 @@ fn gen_available_turns(turns: Vec<TurnInfo>, sps: &Sps) -> Vec<AvailableTurn> {
                 }
             };
 
-            let captured = match turn_info.captured {
-                Some(piece) => Some(String::from(piece.to_string())),
-                None => None,
-            };
-
             AvailableTurn::new(
                 sps.square.to_string(),
                 dst.to_string(),
                 sps.piece.to_string(),
-                captured,
+                turn_info.captured.map(|piece| piece.to_string()),
                 turn_info.turn.to_string(),
             )
         })
@@ -92,16 +87,13 @@ fn gen_available_turns(turns: Vec<TurnInfo>, sps: &Sps) -> Vec<AvailableTurn> {
 }
 
 /// Decide what must be set as a `src` in given `Turn`
-fn set_correct_src(turns: &mut Vec<TurnInfo>, map: &BoardMap, sps: &Sps) {
+fn set_correct_src(turns: &mut [TurnInfo], map: &BoardMap, sps: &Sps) {
     for turn_info in turns.iter_mut() {
-        match turn_info.turn {
-            Turn::Move(ref mut move_turn) => {
-                move_turn.src = match sps.piece {
-                    Piece::Pawn => get_correct_pawn_src(move_turn, sps),
-                    _ => get_correct_non_pawn_src(move_turn, &map, sps),
-                };
-            }
-            _ => (),
+        if let Turn::Move(ref mut move_turn) = turn_info.turn {
+            move_turn.src = match sps.piece {
+                Piece::Pawn => get_correct_pawn_src(move_turn, sps),
+                _ => get_correct_non_pawn_src(move_turn, map, sps),
+            };
         }
     }
 }
@@ -122,7 +114,7 @@ fn get_correct_non_pawn_src(
     sps: &Sps,
 ) -> Option<Vec<Square>> {
     let mut possible_src = movement::possible_squares_for_dst(
-        &map,
+        map,
         t_move.dst,
         sps.side,
         PieceMove::from(sps.piece),
@@ -178,7 +170,7 @@ fn get_unchecked_turns(sps: &Sps, board: &mut Board) -> Vec<Turn> {
     let active_side = board.active_player;
     let mut unchecked_turns = match sps.piece {
         // Delicate pawns require special handling attention
-        Piece::Pawn => return get_unchecked_pawn_turns(&sps, &board),
+        Piece::Pawn => return get_unchecked_pawn_turns(sps, board),
 
         // Include castling turns along with the king
         Piece::King => board
@@ -194,7 +186,7 @@ fn get_unchecked_turns(sps: &Sps, board: &mut Board) -> Vec<Turn> {
         _ => vec![],
     };
 
-    unchecked_turns.append(&mut get_unchecked_non_pawn_turns(&sps, &board));
+    unchecked_turns.append(&mut get_unchecked_non_pawn_turns(sps, board));
     unchecked_turns
 }
 
@@ -211,7 +203,7 @@ fn get_unchecked_non_pawn_turns(sps: &Sps, board: &Board) -> Vec<Turn> {
         turn_move!(
             sps.piece,
             *dst,
-            match board.map.get(&dst).is_some() {
+            match board.map.get(dst).is_some() {
                 true => Flag::CAPTURE,
                 false => 0,
             }
@@ -289,7 +281,7 @@ fn get_promotion_for_unchecked_pawn_turns(
 
     let mut promotion_turns = promotion_moves
         .into_iter()
-        .map(|r#move| Turn::Move(r#move))
+        .map(Turn::Move)
         .collect::<Vec<Turn>>();
 
     turns.append(&mut promotion_turns);
@@ -304,9 +296,9 @@ fn simulate_turn(
 ) -> Result<State, ()> {
     let ret_ok = match turn {
         Turn::Move(r#move) if sps.piece == Piece::Pawn => {
-            simulate_pawn_move(board, &sps, r#move)
+            simulate_pawn_move(board, sps, r#move)
         }
-        Turn::Move(r#move) => simulate_move(board, &sps, r#move),
+        Turn::Move(r#move) => simulate_move(board, sps, r#move),
         Turn::Castling(castling) => simulate_castling(board, castling),
     }?;
 
@@ -317,7 +309,7 @@ fn simulate_turn(
 
 /// Simulate castling turn
 fn simulate_castling(board: &mut Board, turn: &Castling) -> Result<State, ()> {
-    let state = State::new(&board, turn.to_string());
+    let state = State::new(board, turn.to_string());
 
     let side = board.active_player;
     let castling = (side, turn.r#type);
@@ -356,7 +348,7 @@ fn simulate_pawn_move(
     sps: &Sps,
     turn: &Move,
 ) -> Result<State, ()> {
-    let mut state = State::new(&board, turn.to_string());
+    let mut state = State::new(board, turn.to_string());
     let side = board.active_player;
 
     // I used to like pawns before doing all this bs :-)
@@ -409,14 +401,11 @@ fn simulate_move(
     sps: &Sps,
     turn: &Move,
 ) -> Result<State, ()> {
-    let mut state = State::new(&board, turn.to_string());
+    let mut state = State::new(board, turn.to_string());
     let side = board.active_player;
 
     let captured = board.move_piece(turn.dst, sps.square);
-    state.captured = match captured {
-        None => None,
-        Some(captured) => Some((turn.dst, captured)),
-    };
+    state.captured = captured.map(|captured| (turn.dst, captured));
 
     state.moving_piece_src = Some(sps.square);
 
@@ -430,7 +419,7 @@ fn simulate_move(
     // Post success actions
     board.fifty_move_rule = 0;
     board.enpassant = None;
-    play::handle_castling_status(board, sps.square, &turn, &captured);
+    play::handle_castling_status(board, sps.square, turn, &captured);
 
     Ok(state)
 }
@@ -446,7 +435,7 @@ fn get_check_checkmate_flags(
 
     for (i, turn) in turns.iter_mut().enumerate() {
         // `simulate_turn` swaps `active_player` side
-        let simulated_state = simulate_turn(board, &sps, &turn);
+        let simulated_state = simulate_turn(board, sps, turn);
         if simulated_state.is_err() {
             captured.push(None);
             to_be_removed.push(i);
@@ -467,10 +456,8 @@ fn get_check_checkmate_flags(
         }
 
         let simulated_state = simulated_state.unwrap();
-        captured.push(match simulated_state.captured {
-            Some((_, (captured, _))) => Some(captured),
-            None => None,
-        });
+        captured
+            .push(simulated_state.captured.map(|(_, (captured, _))| captured));
 
         board.active_player.switch_side();
         board.hash_state_pop();

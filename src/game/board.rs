@@ -75,10 +75,9 @@ impl Board {
         dst: Square,
         src: Square,
     ) -> Option<(Piece, Side)> {
-        let (piece, side) = self
-            .map
-            .remove(&src)
-            .expect(format!("Src square {} empty (dst:{})", src, dst).as_str());
+        let (piece, side) = self.map.remove(&src).unwrap_or_else(|| {
+            panic!("Src square {} empty (dst:{})", src, dst)
+        });
 
         // Update our cache location of the king
         if piece == Piece::King {
@@ -92,7 +91,7 @@ impl Board {
     #[inline]
     pub fn get_king_pos(&self, side: Side) -> Square {
         // Basically a shortcut function
-        self.king.get(&side).unwrap().clone()
+        *self.king.get(&side).unwrap()
     }
 
     /// Push hash state

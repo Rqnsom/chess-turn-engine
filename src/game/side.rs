@@ -1,8 +1,7 @@
 use std::fmt;
-use std::hash::{Hasher, Hash};
 
 /// Player
-#[derive(Eq, PartialEq, Debug, Copy, Clone)]
+#[derive(Hash, Eq, PartialEq, Debug, Copy, Clone)]
 pub enum Side {
     /// Black player
     Black,
@@ -23,15 +22,6 @@ impl Side {
     /// Change side/player
     pub fn switch_side(&mut self) {
         *self = self.opponent();
-    }
-}
-
-impl Hash for Side {
-    fn hash<H: Hasher>(&self, state: &mut H) {
-        match self {
-            Self::White => state.write_u8(0),
-            Self::Black => state.write_u8(1)
-        }
     }
 }
 

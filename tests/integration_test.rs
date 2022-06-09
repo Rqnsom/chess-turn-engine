@@ -457,10 +457,7 @@ fn draw_after_only_kings_remain() {
     play(&mut cte, "Kxf6 g5");
     play(&mut cte, "Kxg5");
 
-    assert_eq!(
-        Gamestate::DrawInsufficientMatingMaterial,
-        cte.gamestate()
-    );
+    assert_eq!(Gamestate::DrawInsufficientMatingMaterial, cte.gamestate());
 }
 
 #[test]
@@ -562,10 +559,7 @@ fn play(cte: &mut ChessTurnEngine, turns: &str) {
         assert!(cte.undo_turn().is_ok());
 
         // Make sure turn is available
-        assert!(available_turns_contain_turn(
-            cte.available_turns(),
-            turn
-        ));
+        assert!(available_turns_contain_turn(cte.available_turns(), turn));
 
         // Play it again
         assert!(cte.play_turn(turn).is_ok());
@@ -577,10 +571,7 @@ fn play(cte: &mut ChessTurnEngine, turns: &str) {
 /// Try to play an invalid turn
 fn invalid_turn(cte: &mut ChessTurnEngine, turn: &str, err: GameError) {
     // Make sure turn is really not available
-    assert!(!available_turns_contain_turn(
-        cte.available_turns(),
-        turn
-    ));
+    assert!(!available_turns_contain_turn(cte.available_turns(), turn));
 
     assert_eq!(cte.play_turn(turn), Err(err));
 }

@@ -40,7 +40,7 @@ pub enum PieceMove {
 
 impl PieceMove {
     /// Convert to piece
-    pub fn to_piece(&self) -> Piece {
+    pub fn to_piece(self) -> Piece {
         match self {
             PieceMove::Queen => Piece::Queen,
             PieceMove::King => Piece::King,
@@ -154,7 +154,7 @@ pub fn possible_squares_for_dst(
     // squares. We should find at least one piece of who we are looking for on
     // those squares.
     for mut dep_move in dep_moves {
-        while let Some(square) = dep_move.next() {
+        for square in dep_move.by_ref() {
             if let Some((p, s)) = map.get(&square) {
                 if s == side && p == piece_move.to_piece() {
                     src_squares.push(square);
@@ -190,7 +190,7 @@ pub fn possible_squares_for_src(
     // Filter out all possible destination squares based on what we have on
     // those squares.
     for mut dep_move in dep_moves {
-        while let Some(square) = dep_move.next() {
+        for square in dep_move.by_ref() {
             if let Some((p, s)) = map.get(&square) {
                 if s != side && p != Piece::King {
                     dst_squares.push(square);

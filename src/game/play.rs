@@ -55,7 +55,7 @@ fn play_castling(
     board: &mut Board,
     turn: &Castling,
 ) -> Result<State, GameError> {
-    let state = State::new(&board, turn.to_string());
+    let state = State::new(board, turn.to_string());
 
     let side = board.active_player;
     let castling = (side, turn.r#type);
@@ -102,10 +102,8 @@ pub fn verify_castling(
     }
 
     if castlinginfo::get_required_empty_squares(side, castling_type)
-        .into_iter()
-        .filter(|square| board.map.get(square).is_some())
-        .next()
-        .is_some()
+        .iter()
+        .any(|square| board.map.get(square).is_some())
     {
         return Err(GameError::CastlingSquaresNotEmpty);
     }
@@ -136,7 +134,7 @@ fn play_move(board: &mut Board, turn: &mut Move) -> Result<State, GameError> {
 ///
 /// Handle pawn moving forward, pawn capture, en-passant, promotion
 fn play_pawn(board: &mut Board, turn: &mut Move) -> Result<State, GameError> {
-    let mut state = State::new(&board, turn.to_string());
+    let mut state = State::new(board, turn.to_string());
     let mut pawn_src: Option<Square> = None;
 
     let capture = turn.check_flag(Flag::CAPTURE);
@@ -183,7 +181,7 @@ fn play_pawn(board: &mut Board, turn: &mut Move) -> Result<State, GameError> {
         _ => Enpassant::try_from(src, turn.dst, board.active_player),
     };
 
-    handle_castling_status(board, src, &turn, &captured);
+    handle_castling_status(board, src, turn, &captured);
 
     if let Some(captured) = captured {
         state.captured = Some((
@@ -203,7 +201,7 @@ fn play_pawn(board: &mut Board, turn: &mut Move) -> Result<State, GameError> {
 
 /// Play the non-pawn turn
 fn play_piece(board: &mut Board, turn: &mut Move) -> Result<State, GameError> {
-    let mut state = State::new(&board, turn.to_string());
+    let mut state = State::new(board, turn.to_string());
     let capture = turn.check_flag(Flag::CAPTURE);
 
     let possible_src = movement::possible_squares_for_dst(
@@ -234,7 +232,7 @@ fn play_piece(board: &mut Board, turn: &mut Move) -> Result<State, GameError> {
     // Clear en-passant state for non-pawn turns
     board.enpassant = None;
 
-    handle_castling_status(board, src, &turn, &captured);
+    handle_castling_status(board, src, turn, &captured);
 
     Ok(state)
 }
@@ -253,7 +251,7 @@ fn verify_pawn_capture(
         Err(e) if board.enpassant.is_none() => return Err(e),
 
         // En-passant implies capture
-        Err(e) if capture == false => return Err(e),
+        Err(e) if !capture => return Err(e),
 
         // This arm means en-passant should be checked
         Err(e) => e,
