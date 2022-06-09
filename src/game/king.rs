@@ -35,7 +35,7 @@ pub fn get_state(board: &mut Board, side: Side) -> KingState {
 /// Check if king can make a safe move
 fn any_safe_moves(map: &mut BoardMap, square: Square, side: Side) -> bool {
     let king_moves =
-        movement::possible_squares_for_src(&map, square, side, PieceMove::King);
+        movement::possible_squares_for_src(map, square, side, PieceMove::King);
 
     // Temporary pick up the king to make scanning easier
     let king = map.remove(&square);
@@ -76,10 +76,10 @@ fn is_attacked_by(
     piece_move: PieceMove,
 ) -> bool {
     let squares =
-        movement::possible_squares_for_dst(&map, pos, side, piece_move);
+        movement::possible_squares_for_dst(map, pos, side, piece_move);
 
     for square in squares.iter() {
-        if let Some((p, _)) = map.get(&square) {
+        if let Some((p, _)) = map.get(square) {
             match p {
                 piece if piece == piece_move.to_piece() => return true,
                 _ => continue,

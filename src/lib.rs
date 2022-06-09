@@ -266,11 +266,11 @@ impl ChessTurnEngine {
 
     /// Undo turn and restore previous board state
     pub fn undo_turn(&mut self) -> Result<(), GameError> {
-        Ok(self.game.undo_turn()?)
+        self.game.undo_turn()
     }
 
     /// Get list of available turns
     pub fn available_turns(&self) -> &Vec<AvailableTurn> {
-        &self.game.available_turns()
+        self.game.available_turns()
     }
 }
