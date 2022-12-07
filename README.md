@@ -1,18 +1,18 @@
 # Chess turn engine
-Turn engine fully implements all chess rules so it could be used to play
+The turn engine fully implements all chess rules so it could be used to play
 chess or to make chess simulations.
 
-Engine provides a list of available and playable turns after each turn
+The engine provides a list of available and playable turns after each turn
 is played. Any turn from the list can be played.
 Any played turn can be undone.
 
 Input for the engine are chess turns written in algebraic chess notation
-format. But for the simplicity sake, one can use `AvailableTurn` struct to
-transform simple layman's turn *Move piece from square A to square B* into a
+format. But for simplicity's sake, one can use the `AvailableTurn` struct to
+transform a simple layman's turn *Move piece from square A to square B* into a
 chess notation turn.
 
 ## Display
-Chess engine provides a basic set of tools to print out the board state in
+The chess engine provides a basic set of tools to print out the board state in
 ASCII format. Few options are available for printing out the board state.
 Turn history can be printed out. Captured pieces can be printed out.
 ### `ViewMode::SimpleAscii` - Quite simple display format
@@ -27,7 +27,7 @@ Turn history can be printed out. Captured pieces can be printed out.
    - `Q`: Queen
 
  #### Example
- ```text
+ ```rust
  8 bR bN bB bQ bK bB bN bR
  7 bP bP bP bP bP bP bP bP
  6  -  +  -  +  -  +  -  +
@@ -42,7 +42,7 @@ Turn history can be printed out. Captured pieces can be printed out.
 Note: *colors are not visible in documentation pages*
 
 #### Example
-```text
+```rust
 8  ♜  ♞  ♝  ♛  ♚  ♝  ♞  ♜
 7  ♟  ♟  ♟  ♟  ♟  ♟  ♟  ♟
 6
@@ -54,7 +54,7 @@ Note: *colors are not visible in documentation pages*
    a  b  c  d  e  f  g  h
 ```
 ## Example with six straightforward turns played
-```
+```rust
 use chess_turn_engine::{
     ChessTurnEngine, DisplayOption, Setup, ViewMode, Gamestate
 };
@@ -103,7 +103,7 @@ for turn in cte.available_turns() {
 // AvailableTurn (src: h1, dst: h4, piece: Rook, captured: None, turn: Rh4
 ```
 ## Example with two turns played
-```
+```rust
 let mut cte = ChessTurnEngine::new(Setup::Normal).unwrap();
 assert!(cte.play_turn("d4").is_ok()); // Play "d4", starting turn
 
